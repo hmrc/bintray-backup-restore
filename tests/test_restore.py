@@ -7,8 +7,8 @@ from pathlib import Path
 import pytest
 from httpretty import httpretty
 
-from ..bintray_restore import get_local_files
-from ..bintray_restore import restore
+from src.bintray_restore import get_local_files
+from src.bintray_restore import restore
 
 TEST_REPO = "repo-to-check"
 
@@ -35,7 +35,7 @@ def test_repo():
 
 def create_local_package(package_name, vcs_url=True, extra_metadata=None):
     file = Path(f"{TEST_REPO}/{package_name}/0.0.1/this/is/my/path/foo.txt")
-    file.parent.mkdir(parents=True)
+    file.parent.mkdir(parents=True, exist_ok=True)
     file.write_text("this is a test file")
     package_metadata = {
         "name": package_name,
@@ -53,37 +53,36 @@ def create_local_package(package_name, vcs_url=True, extra_metadata=None):
 def test_discover_local_files(test_repo):
     file_paths, packages = get_local_files([TEST_REPO])
 
-    assert file_paths == [
-        Path(f"{TEST_REPO}/fake_package/0.0.1/this/is/my/path/foo.txt"),
-        Path(f"{TEST_REPO}/fake_package_4/0.0.1/this/is/my/path/foo.txt"),
-        Path(f"{TEST_REPO}/fake_package_2/0.0.1/this/is/my/path/foo.txt"),
-        Path(f"{TEST_REPO}/fake_package_3/0.0.1/this/is/my/path/foo.txt"),
-    ]
-    assert packages == [
-        {
-            "name": "fake_package",
-            "repo": "repo-to-check",
-            "vcs_url": "https://github.com/hmrc/fake_package",
-        },
-        {"name": "fake_package_4", "repo": "repo-to-check"},
-        {
-            "name": "fake_package_2",
-            "repo": "repo-to-check",
-            "vcs_url": "https://github.com/hmrc/fake_package_2",
-        },
-        {
-            "name": "fake_package_3",
-            "repo": "repo-to-check",
-            "vcs_url": "https://github.com/hmrc/fake_package_3",
-            "desc": "a description",
-            "labels": ["something"],
-            "website_url": "example.com",
-            "issue_tracker_url": "example.com",
-            "github_repo": "hmrc/vat-registration",
-            "github_release_notes_file": "README.md",
-        },
-    ]
+    assert Path(f"{TEST_REPO}/fake_package/0.0.1/this/is/my/path/foo.txt") in file_paths
+    assert Path(f"{TEST_REPO}/fake_package_4/0.0.1/this/is/my/path/foo.txt") in file_paths
+    assert Path(f"{TEST_REPO}/fake_package_2/0.0.1/this/is/my/path/foo.txt") in file_paths
+    assert Path(f"{TEST_REPO}/fake_package_3/0.0.1/this/is/my/path/foo.txt") in file_paths
 
+    assert len(file_paths) == 4
+
+    assert {
+               "name": "fake_package",
+               "repo": "repo-to-check",
+               "vcs_url": "https://github.com/hmrc/fake_package",
+           } in packages
+    assert {"name": "fake_package_4", "repo": "repo-to-check"} in packages
+    assert {
+               "name": "fake_package_2",
+               "repo": "repo-to-check",
+               "vcs_url": "https://github.com/hmrc/fake_package_2",
+           } in packages
+    assert {
+               "name": "fake_package_3",
+               "repo": "repo-to-check",
+               "vcs_url": "https://github.com/hmrc/fake_package_3",
+               "desc": "a description",
+               "labels": ["something"],
+               "website_url": "example.com",
+               "issue_tracker_url": "example.com",
+               "github_repo": "hmrc/vat-registration",
+               "github_release_notes_file": "README.md",
+           } in packages
+    assert len(packages) == 4
 
 def test_restores_files(test_repo):
     organisation = "hmrc-digital"
@@ -136,15 +135,13 @@ def test_restores_files(test_repo):
     )
     uploads = file_uploaded_requests(httpretty)
     assert len(uploads) == 3
-    assert (
-        uploads[0].path
-        == "/api/v1/content/hmrc-digital/repo-to-check/fake_package_4/0.0.1/this/is/my/path/foo.txt?publish=1&override=1"
-    )
+    assert (any(
+        x.path == "/api/v1/content/hmrc-digital/repo-to-check/fake_package_4/0.0.1/this/is/my/path/foo.txt?publish=1&override=1"
+        for x in uploads))
     assert uploads[0].body == b"this is a test file"
-    assert (
-        uploads[1].path
-        == "/api/v1/content/hmrc-digital/repo-to-check/fake_package_2/0.0.1/this/is/my/path/foo.txt?publish=1&override=1"
-    )
+    assert (any(
+        x.path == "/api/v1/content/hmrc-digital/repo-to-check/fake_package_2/0.0.1/this/is/my/path/foo.txt?publish=1&override=1"
+        for x in uploads))
     assert uploads[1].body == b"this is a test file"
 
 

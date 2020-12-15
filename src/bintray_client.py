@@ -83,7 +83,6 @@ class BintrayClient:
             auth=self.api_creds,
             data=path.read_bytes(),
         )
-        print(response.content)
         response.raise_for_status()
 
     def get_metadata(self, repositories):

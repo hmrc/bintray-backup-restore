@@ -53,5 +53,5 @@ def backup(username, token, organisation):
 if __name__ == "__main__":
     username = os.environ["BINTRAY_USERNAME"]
     token = os.environ["BINTRAY_TOKEN"]
-    organisation = [os.environ"BINTRAY_ORGANISATION"] #e.g. 'hmrc' or 'hmrc-digital'
+    organisation = os.environ["BINTRAY_ORGANISATION"] #e.g. 'hmrc' or 'hmrc-digital'
     backup(username, token, organisation)

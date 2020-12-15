@@ -2,10 +2,9 @@
 import json
 import re
 import shutil
-import timeit
 from pathlib import Path
 
-from ..bintray_backup import backup, get_sha1_hash
+from src.bintray_backup import backup, get_sha1_hash
 
 import pytest
 from httpretty import httpretty
@@ -39,6 +38,7 @@ def test_can_detect_file_changes():
 def test_can_download_files(cleanup_directory):
     httpretty.enable(allow_net_connect=False)
     organisation = "hmrc"
+    httpretty.reset()
 
     with_packages(organisation)
     with_package_metadata(organisation)
@@ -69,6 +69,7 @@ def test_can_download_files(cleanup_directory):
 def test_detect_existing_files(cleanup_directory):
     httpretty.enable(allow_net_connect=False)
     organisation = "hmrc"
+    httpretty.reset()
 
     with_packages(organisation)
     with_package_metadata(organisation)
@@ -90,6 +91,7 @@ def test_detect_existing_files(cleanup_directory):
 def test_detect_changed_files(cleanup_directory):
     httpretty.enable(allow_net_connect=False)
     organisation = "hmrc"
+    httpretty.reset()
 
     with_packages(organisation)
     with_package_metadata(organisation)

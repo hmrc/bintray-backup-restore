@@ -5,9 +5,9 @@ import os
 from pathlib import Path
 
 import requests
-from bintray_client import BintrayClient
-from bintray_client import get_sha1_hash
-from bintray_client import PROGRESS_BAR_FORMAT
+from src.bintray_client import BintrayClient
+from src.bintray_client import get_sha1_hash
+from src.bintray_client import PROGRESS_BAR_FORMAT
 from progress.bar import IncrementalBar
 
 
@@ -62,11 +62,15 @@ def upload_changed_files(bintray_client, local_files, bintray_files):
     for path in IncrementalBar(f"Uploading files", suffix=PROGRESS_BAR_FORMAT).iter(
         local_files
     ):
+        print(f"SHA = {get_sha1_hash(path)}")
         if not any(
             str(path) == local_path(bintray_file)
             and get_sha1_hash(path) == bintray_file["sha1"]
             for bintray_file in bintray_files
         ):
+            if not path.exists():
+                print(f"FILE NOT ON DISK")
+                print(f"CURRENT WORKING DIR 2: {Path().absolute()}")
             uploaded_files += 1
             bintray_client.upload_file(path)
     print(
@@ -91,6 +95,6 @@ def restore(username, token, organisation, repositories):
 if __name__ == "__main__":
     username = os.environ["BINTRAY_USERNAME"]
     token = os.environ["BINTRAY_TOKEN"]
-    organisation = [os.environ"BINTRAY_ORGANISATION"] #e.g. 'hmrc' or 'hmrc-digital'
+    organisation = os.environ["BINTRAY_ORGANISATION"] # e.g. 'hmrc' or 'hmrc-digital'
     repositories = ["releases", "sbt-plugin-releases"]
     restore(username, token, organisation, repositories)

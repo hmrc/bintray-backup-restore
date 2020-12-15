@@ -13,7 +13,6 @@ tenacity = "^6.2.0"
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.2"
 httpretty = "^1.0.3"
-pytest-cov = "^2.10.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

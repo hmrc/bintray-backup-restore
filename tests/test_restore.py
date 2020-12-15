@@ -13,7 +13,7 @@ from src.bintray_restore import restore
 TEST_REPO = "repo-to-check"
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def test_repo():
     create_local_package("fake_package")
     create_local_package("fake_package_2")

@@ -8,10 +8,11 @@ They were created for the process of migrating the HMRC Bintray content from a p
 They facilitated the download from an existing organisation (HMRC) and upload to a new organisation (HMRC-Digital).
 
 ### Install
-you will need:
+You will need:
 - python 3.8+
 - poetry (https://python-poetry.org/docs/#installation)
-to install nessary dependancys run:
+
+To install necessary dependencies run:
 ```bash
 poetry install
 # to verify your install you can run the tests with
